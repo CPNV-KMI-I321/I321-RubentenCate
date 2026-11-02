@@ -1,0 +1,25 @@
+{
+  "name": "i321-rubentencate",
+  "version": "1.0.0",
+  "description": "API REST du module I321 - Programmer des systèmes distribués (CPNV)",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node --env-file-if-exists=.env.production src/server.js",
+    "dev": "node --watch --env-file-if-exists=.env.development src/server.js",
+    "test": "node --env-file-if-exists=.env.test --test tests/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CPNV-KMI-I321/I321-RubentenCate.git"
+  },
+  "keywords": [],
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/CPNV-KMI-I321/I321-RubentenCate/issues"
+  },
+  "homepage": "https://github.com/CPNV-KMI-I321/I321-RubentenCate#readme",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "express": "^5.3.0"
+  }
+}

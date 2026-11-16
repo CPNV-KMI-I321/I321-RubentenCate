@@ -147,3 +147,10 @@ vite.config.ts.timestamp-*
 
 # Turbo Repo
 .turbo
+
+# Foodtruck (starter I321)
+data/
+*.sqlite*
+.agents/
+.codex/
+.aws/

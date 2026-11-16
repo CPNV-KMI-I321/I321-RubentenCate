@@ -1,25 +1,28 @@
 {
-  "name": "i321-rubentencate",
+  "name": "foodtruck",
   "version": "1.0.0",
   "description": "API REST du module I321 - Programmer des systèmes distribués (CPNV)",
-  "main": "src/server.js",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24 <25"
+  },
   "scripts": {
-    "start": "node --env-file-if-exists=.env.production src/server.js",
-    "dev": "node --watch --env-file-if-exists=.env.development src/server.js",
-    "test": "node --env-file-if-exists=.env.test --test tests/"
+    "start": "node --env-file-if-exists=.env src/server.js",
+    "dev": "node --watch --env-file-if-exists=.env src/server.js",
+    "test": "node --test --test-concurrency=1 --test-timeout=60000 tests/starter.test.js",
+    "test:acceptance": "node --test --test-concurrency=1 --test-timeout=60000 tests/*.acceptance.js"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/CPNV-KMI-I321/I321-RubentenCate.git"
   },
-  "keywords": [],
-  "type": "commonjs",
   "bugs": {
     "url": "https://github.com/CPNV-KMI-I321/I321-RubentenCate/issues"
   },
   "homepage": "https://github.com/CPNV-KMI-I321/I321-RubentenCate#readme",
   "dependencies": {
-    "cors": "^2.8.6",
-    "express": "^5.3.0"
+    "express": "^5.1.0",
+    "swagger-ui-express": "^5.0.1"
   }
 }

@@ -10,13 +10,19 @@ export function findById(id) {
 }
 
 export function create(data) {
-  const result = db.prepare("INSERT INTO pizzas (description, name, price, imageUrl) VALUES (?, ?, ?, ?)")
+  const result = db
+    .prepare(
+      "INSERT INTO pizzas (description, name, price, imageUrl) VALUES (?, ?, ?, ?)",
+    )
     .run(data.description, data.name, data.price, data.imageUrl);
   return findById(result.lastInsertRowid);
 }
 
 export function update(id, data) {
-  fail(501, "TODO : UPDATE paramétré");
+  db.prepare(
+    "UPDATE pizzas SET description = ?, name = ?, price = ?, imageUrl = ? WHERE id = ?",
+  ).run(data.description, data.name, data.price, data.imageUrl, id);
+  return findById(id);
 }
 
 export function remove(id) {

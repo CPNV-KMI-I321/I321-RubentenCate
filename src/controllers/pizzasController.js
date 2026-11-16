@@ -19,7 +19,11 @@ export function create(req, res) {
 }
 
 export function update(req, res) {
-  fail(501, "TODO : modifier la ressource");
+  const id = validateId(req.params.id);
+  const data = validatePizza(req.body);
+  const pizza = Pizza.update(id, data);
+  if (!pizza) fail(404, `Pizza ${id} not found`);
+  res.json(pizza);
 }
 
 export function remove(req, res) {

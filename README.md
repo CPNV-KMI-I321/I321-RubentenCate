@@ -13,20 +13,20 @@
 Pizza &amp; Tomato Sauce
 
 API REST du Foodtruck : le pizzaïolo consulte et gère sa carte des pizzas.
-Le projet part du starter de l'enseignant ([I321-StarterCode-1](https://github.com/CPNV-KMI-I321/I321-StarterCode-1)), fusionné dans ce dépôt.
+Le projet avance par étapes, à partir des starters de l'enseignant ([étape 1](https://github.com/CPNV-KMI-I321/I321-StarterCode-1), [étape 2](https://github.com/CPNV-KMI-I321/I321-StarterCode-2)), fusionnés dans ce dépôt.
 
-# Consignes — Foodtruck Starter 1
+# Consignes — Foodtruck Starter 2
 
-> Consignes de l'enseignant, reprises du dépôt [I321-StarterCode-1](https://github.com/CPNV-KMI-I321/I321-StarterCode-1). Le starter est déjà fusionné dans ce dépôt : il n'est pas nécessaire de le cloner. Pour le corrigé, voir la section [Corrigé de l'enseignant](#corrigé-de-lenseignant).
+> Consignes de l'enseignant, reprises du dépôt [I321-StarterCode-2](https://github.com/CPNV-KMI-I321/I321-StarterCode-2). Le starter est déjà fusionné dans ce dépôt : il n'est pas nécessaire de le cloner. Pour le corrigé, voir la section [Corrigé de l'enseignant](#corrigé-de-lenseignant).
 
-Dépôt : `I321-StarterCode-1`. La branche `main` contient le starter. Ce dossier est un point de départ à compléter, pas le corrigé.
+Dépôt : `I321-StarterCode-2`. La branche `main` contient le starter. Ce dossier est un point de départ à compléter, pas le corrigé.
 Installer Node.js **24 LTS** et Git. Le cours et les consignes restent en français.
 
 ## Démarrer
 
 ```sh
-git clone https://github.com/CPNV-KMI-I321/I321-StarterCode-1.git
-cd I321-StarterCode-1
+git clone https://github.com/CPNV-KMI-I321/I321-StarterCode-2.git
+cd I321-StarterCode-2
 ```
 
 ```sh
@@ -43,21 +43,18 @@ Les chemins de base sont relatifs au dossier de l'application. Ne pas reprendre 
 
 ## À réaliser
 
-`GET /api/pizzas` est un exemple complet à lire avant de commencer.
-Les autres opérations répondent **501** tant qu'elles ne sont pas implémentées.
+Le CRUD Pizzas de l'étape 1 est fourni et doit continuer à fonctionner.
+La table ingredients et ses routes sont prêtes ; ses opérations répondent **501**.
+Utiliser les fichiers Pizzas comme exemple.
 
-1. Compléter `findById`, `create`, `update` et `remove` dans `src/entities/Pizza.js` avec du SQL paramétré.
-2. Compléter les contrôleurs correspondants dans `src/controllers/pizzasController.js`.
-3. Réutiliser `validateId`, `validatePizza` et `fail` depuis `src/validation.js`.
-4. Pour POST : répondre 201 avec la pizza et un en-tête Location. Pour DELETE : 204 sans corps.
-5. Répondre 400 si les données sont invalides et 404 si une pizza demandée n'existe pas.
-6. Produire le diagramme Client → Route → Controller → Entity → SQLite.
-
-Ne mettre aucun SQL dans les routes ou contrôleurs, ni req/res dans les entités.
-La configuration SQLite, la table pizzas, les routes, Swagger et la validation sont déjà fournis.
+1. Compléter `src/entities/Ingredient.js` : lister, consulter, créer, modifier, supprimer.
+2. Compléter `src/controllers/ingredientsController.js` et réutiliser `validateIngredient` et `validateId`.
+3. Retourner les mêmes codes HTTP que pour les pizzas : 200, 201, 204, 400 et 404.
+4. Garder les ingrédients indépendants des pizzas pour cette étape.
+5. Dessiner le diagramme de classes et le MLD des deux tables sans association.
 
 ```json
-{"name":"Margherita","description":"Classique","price":14.5}
+{"name":"Mozzarella","price":2}
 ```
 
 ## Vérifier son travail
@@ -93,38 +90,46 @@ Conserver son travail dans des commits avant de changer de branche.
 Client → Route → Controller → Entity → SQLite
 ```
 
-| Couche | Fichier | Rôle |
+| Couche | Fichiers | Rôle |
 |---|---|---|
-| Route | `src/routes/pizzas.js` | Associe une méthode HTTP et un chemin à un contrôleur |
-| Controller | `src/controllers/pizzasController.js` | Lit `req`, valide, choisit le code HTTP et répond avec `res` |
-| Entity | `src/entities/Pizza.js` | Exécute le SQL paramétré, sans `req` ni `res` |
-| Base | `src/config/database.js` | Configuration SQLite et table `pizzas` |
+| Route | `src/routes/index.js`, `pizzas.js`, `ingredients.js` | Associe une méthode HTTP et un chemin à un contrôleur |
+| Controller | `src/controllers/pizzasController.js`, `ingredientsController.js` | Lit `req`, valide, choisit le code HTTP et répond avec `res` |
+| Entity | `src/entities/Pizza.js`, `Ingredient.js` | Exécute le SQL paramétré, sans `req` ni `res` |
+| Base | `src/config/database.js` | Configuration SQLite, tables `pizzas` et `ingredients` |
 
-Le diagramme de l'architecture se trouve dans `docs/a-completer.puml`.
+Diagrammes :
+- `docs/etape-1-sequences.puml` : diagrammes de séquence du CRUD Pizzas (étape 1) ;
+- `docs/a-completer.puml` : diagramme de classes et MLD (étape 2).
 
 # Routes
 
+Les mêmes routes existent pour `pizzas` et pour `ingredients` :
+
 | Méthode | Chemin | Succès | Erreurs |
 |---|---|---|---|
-| `GET` | `/api/pizzas` | 200 | — |
-| `GET` | `/api/pizzas/:id` | 200 | 400, 404 |
-| `POST` | `/api/pizzas` | 201 + en-tête `Location` | 400 |
-| `PUT` | `/api/pizzas/:id` | 200 | 400, 404 |
-| `DELETE` | `/api/pizzas/:id` | 204 sans corps | 400, 404 |
+| `GET` | `/api/{ressource}` | 200 | — |
+| `GET` | `/api/{ressource}/:id` | 200 | 400, 404 |
+| `POST` | `/api/{ressource}` | 201 + en-tête `Location` | 400 |
+| `PUT` | `/api/{ressource}/:id` | 200 | 400, 404 |
+| `DELETE` | `/api/{ressource}/:id` | 204 sans corps | 400, 404 |
 
-Exemple de corps JSON :
+Exemples de corps JSON :
 
 ```json
 {"name":"Margherita","description":"Classique","price":14.5}
 ```
 
+```json
+{"name":"Mozzarella","price":2}
+```
+
 # Corrigé de l'enseignant
 
-Le dépôt du starter est enregistré comme remote `starter`. Quand l'enseignant publie la branche `solution` :
+Les dépôts des starters sont enregistrés comme remotes `starter` (étape 1) et `starter2` (étape 2). Quand l'enseignant publie la branche `solution` :
 
 ```sh
-git fetch starter
-git diff develop starter/solution -- src
+git fetch starter2
+git diff Etape-2 starter2/solution -- src
 ```
 
 Commiter son travail avant de comparer ou de changer de branche.

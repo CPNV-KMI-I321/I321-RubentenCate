@@ -46,3 +46,22 @@ test('CRUD pizzas et validation HTTP', async () => {
   });
   assert.equal(malformed.status, 400);
 });
+
+
+test('CRUD ingrédients sans régression pizzas', async () => {
+  let response = await request('/api/ingredients', 'POST', { name: 'Mozzarella', price: 2 });
+  assert.equal(response.status, 201);
+  const ingredient = await response.json();
+  const path = `/api/ingredients/${ingredient.id}`;
+  assert.equal((await (await request('/api/ingredients')).json()).length, 1);
+  assert.equal((await (await request(path)).json()).name, 'Mozzarella');
+  response = await request(path, 'PUT', { name: 'Mozzarella', price: 3 });
+  assert.equal(response.status, 200);
+  assert.equal((await response.json()).price, 3);
+  for (const body of [{}, { name: '', price: 1 }, { name: 'Sel', price: '1' }, { name: 'Sel', price: -1 }]) {
+    assert.equal((await request('/api/ingredients', 'POST', body)).status, 400);
+  }
+  assert.equal((await request(path, 'DELETE')).status, 204);
+  assert.equal((await request(path)).status, 404);
+  assert.equal((await request('/api/pizzas')).status, 200);
+});

@@ -15,4 +15,9 @@ db.exec(`
     price REAL NOT NULL CHECK (price >= 0),
     imageUrl TEXT
   );
+  CREATE TABLE IF NOT EXISTS ingredients (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    price REAL NOT NULL CHECK (price >= 0)
+  );
 `);

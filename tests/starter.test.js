@@ -30,6 +30,9 @@ test('le serveur, Swagger et le contrat HTTP sont disponibles', async () => {
 });
 
 
-test('la liste exemple fonctionne avec une base neuve', async () => {
-  assert.deepEqual(await (await request('/api/pizzas')).json(), []);
+test('le CRUD Pizzas acquis à la séance précédente fonctionne', async () => {
+  const response = await request('/api/pizzas', 'POST', { name: 'Exemple', price: 12 });
+  assert.equal(response.status, 201);
+  const pizza = await response.json();
+  assert.equal((await request(`/api/pizzas/${pizza.id}`, 'DELETE')).status, 204);
 });

@@ -1,3 +1,158 @@
 @startuml
-' TODO : produire le diagramme demandé dans le README.
+title GET /api/pizzas — Client → Route → Controller → Entity → SQLite
+
+actor Client
+participant "Route\npizzas.js" as R
+participant "Controller\npizzasController.js" as C
+participant "Entity\nPizza.js" as E
+database "SQLite\nfoodtruck.sqlite" as DB
+
+Client -> R : GET /api/pizzas
+R -> C : list(req, res)
+C -> E : findAll()
+E -> DB : SELECT * FROM pizzas ORDER BY id
+DB --> E : lignes (éventuellement aucune)
+E --> C : tableau de pizzas
+C --> Client : 200 OK\n+ tableau JSON ([] si la carte est vide)
+@enduml
+
+@startuml
+title GET /api/pizzas/{id} — Client → Route → Controller → Entity → SQLite
+
+actor Client
+participant "Route\npizzas.js" as R
+participant "Controller\npizzasController.js" as C
+participant "Validation\nvalidation.js" as V
+participant "Entity\nPizza.js" as E
+database "SQLite\nfoodtruck.sqlite" as DB
+
+Client -> R : GET /api/pizzas/7
+R -> C : get(req, res)
+C -> V : validateId(req.params.id)
+
+alt identifiant invalide (abc, 0…)
+  V --> C : fail(400, "Identifiant invalide.")
+  C --> Client : 400 Bad Request\n{ "error": message }
+else identifiant valide
+  V --> C : id (nombre)
+  C -> E : findById(id)
+  E -> DB : SELECT * FROM pizzas WHERE id = ?
+  alt pizza trouvée
+    DB --> E : ligne de la pizza
+    E --> C : pizza
+    C --> Client : 200 OK\n+ pizza en JSON
+  else pizza inexistante
+    DB --> E : aucune ligne
+    E --> C : undefined
+    C --> Client : 404 Not Found\n{ "error": "Pizza 7 introuvable." }
+  end
+end
+@enduml
+
+@startuml
+title POST /api/pizzas — Client → Route → Controller → Entity → SQLite
+
+actor Client
+participant "Route\npizzas.js" as R
+participant "Controller\npizzasController.js" as C
+participant "Validation\nvalidation.js" as V
+participant "Entity\nPizza.js" as E
+database "SQLite\nfoodtruck.sqlite" as DB
+
+Client -> R : POST /api/pizzas\n{"name":"Margherita","description":"Classique","price":14.5}
+R -> C : create(req, res)
+C -> V : validatePizza(req.body)
+
+alt données valides
+  V --> C : data { name, description, price, imageUrl }
+  C -> E : create(data)
+  E -> DB : INSERT INTO pizzas (description, name, price, imageUrl)\nVALUES (?, ?, ?, ?)
+  DB --> E : { changes: 1, lastInsertRowid: id }
+  E -> E : findById(lastInsertRowid)
+  E -> DB : SELECT * FROM pizzas WHERE id = ?
+  DB --> E : ligne de la pizza
+  E --> C : pizza { id, name, description, price, imageUrl }
+  C --> Client : 201 Created\nLocation: /api/pizzas/{id}\n+ pizza en JSON
+else données invalides (nom vide, prix négatif…)
+  V --> C : fail(400, message)
+  note right of C : errorHandler.js transforme\nl'erreur en réponse HTTP
+  C --> Client : 400 Bad Request\n{ "error": message }
+end
+
+@enduml
+
+@startuml
+title PUT /api/pizzas/{id} — Client → Route → Controller → Entity → SQLite
+
+actor Client
+participant "Route\npizzas.js" as R
+participant "Controller\npizzasController.js" as C
+participant "Validation\nvalidation.js" as V
+participant "Entity\nPizza.js" as E
+database "SQLite\nfoodtruck.sqlite" as DB
+
+Client -> R : PUT /api/pizzas/7\n{"name":"Prosciutto","description":"Jambon","price":16}
+R -> C : update(req, res)
+C -> V : validateId(req.params.id)
+
+alt identifiant invalide
+  V --> C : fail(400, "Identifiant invalide.")
+  C --> Client : 400 Bad Request\n{ "error": message }
+else identifiant valide
+  V --> C : id (nombre)
+  C -> V : validatePizza(req.body)
+  alt données invalides (nom vide, prix négatif…)
+    V --> C : fail(400, message)
+    C --> Client : 400 Bad Request\n{ "error": message }
+  else données valides
+    V --> C : data { name, description, price, imageUrl }
+    C -> E : update(id, data)
+    E -> DB : UPDATE pizzas SET description = ?, name = ?,\nprice = ?, imageUrl = ? WHERE id = ?
+    DB --> E : { changes: 1 ou 0 }
+    E -> E : findById(id)
+    E -> DB : SELECT * FROM pizzas WHERE id = ?
+    alt pizza trouvée
+      DB --> E : ligne de la pizza modifiée
+      E --> C : pizza
+      C --> Client : 200 OK\n+ pizza modifiée en JSON
+    else pizza inexistante
+      DB --> E : aucune ligne
+      E --> C : undefined
+      C --> Client : 404 Not Found\n{ "error": "Pizza 7 introuvable." }
+    end
+  end
+end
+@enduml
+
+@startuml
+title DELETE /api/pizzas/{id} — Client → Route → Controller → Entity → SQLite
+
+actor Client
+participant "Route\npizzas.js" as R
+participant "Controller\npizzasController.js" as C
+participant "Validation\nvalidation.js" as V
+participant "Entity\nPizza.js" as E
+database "SQLite\nfoodtruck.sqlite" as DB
+
+Client -> R : DELETE /api/pizzas/7
+R -> C : remove(req, res)
+C -> V : validateId(req.params.id)
+
+alt identifiant invalide
+  V --> C : fail(400, "Identifiant invalide.")
+  C --> Client : 400 Bad Request\n{ "error": message }
+else identifiant valide
+  V --> C : id (nombre)
+  C -> E : remove(id)
+  E -> DB : DELETE FROM pizzas WHERE id = ?
+  alt pizza supprimée
+    DB --> E : { changes: 1 }
+    E --> C : true (changes > 0)
+    C --> Client : 204 No Content\n(sans corps)
+  else pizza inexistante
+    DB --> E : { changes: 0 }
+    E --> C : false
+    C --> Client : 404 Not Found\n{ "error": "Pizza 7 introuvable." }
+  end
+end
 @enduml

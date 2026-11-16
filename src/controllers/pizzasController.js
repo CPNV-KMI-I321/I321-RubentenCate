@@ -27,5 +27,7 @@ export function update(req, res) {
 }
 
 export function remove(req, res) {
-  fail(501, "TODO : supprimer la ressource");
+  const id = validateId(req.params.id);
+  if (!Pizza.remove(id)) fail(404, `Pizza ${id} introuvable.`);
+  res.status(204).end();
 }

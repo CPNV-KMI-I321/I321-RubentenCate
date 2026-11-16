@@ -1,21 +1,32 @@
-import { fail } from '../validation.js';
+import { db } from '../validation.js';
 
 export function findAll() {
-  fail(501, 'TODO : lister les ingrédients en SQL');
+  return db.prepare("SELECT * FROM ingredients ORDER BY id").all();
 }
 
 export function findById(id) {
-  fail(501, 'TODO : SELECT par identifiant');
+  return db.prepare("SELECT * FROM ingredients where id = ?").get(id):
 }
 
 export function create(data) {
-  fail(501, 'TODO : INSERT paramétré');
+  const result = db
+    .prepare(
+      "INSERT into ingredients (name, price) VALUES (?, ?)"
+    )
+    .run(data.name, data.price);
+  return findById(result.lastInsertRowid);
 }
 
 export function update(id, data) {
-  fail(501, 'TODO : UPDATE paramétré');
+  db.prepare(
+    "UPDATE ingredients SET name = ?, price = ? WHERE id = ?"
+  ).run(data.name, data.price, id);
+  return findById(id);
 }
 
 export function remove(id) {
-  fail(501, 'TODO : DELETE paramétré');
+  const result = db.prepare(
+    "DELETE FROM ingredients WHERE id = ?"
+  ).run(id);
+  return result.changes > 0;
 }

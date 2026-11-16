@@ -1,5 +1,4 @@
 import { db } from "../config/database.js";
-import { fail } from "../validation.js";
 
 export function findAll() {
   return db.prepare("SELECT * FROM pizzas ORDER BY id").all();
@@ -13,7 +12,8 @@ export function create(data) {
   const result = db
     .prepare(
       "INSERT INTO pizzas (description, name, price, imageUrl) VALUES (?, ?, ?, ?)",
-    ).run(data.description, data.name, data.price, data.imageUrl);
+    )
+    .run(data.description, data.name, data.price, data.imageUrl);
   return findById(result.lastInsertRowid);
 }
 
@@ -25,8 +25,6 @@ export function update(id, data) {
 }
 
 export function remove(id) {
-  const result = db.prepare(
-    "DELETE FROM pizzas WHERE id = ?",
-  ).run(id);
+  const result = db.prepare("DELETE FROM pizzas WHERE id = ?").run(id);
   return result.changes > 0;
 }
